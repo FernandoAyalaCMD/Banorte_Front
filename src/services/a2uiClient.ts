@@ -55,7 +55,7 @@ interface BackendChatResponse {
 async function post<T>(endpoint: string, body: Record<string, unknown>): Promise<T> {
   const controller = new AbortController();
   // 45s timeout for Gemini LLM + MCP tools + ElevenLabs TTS
-  const timeout = setTimeout(() => controller.abort(), 45000);
+  const timeout = setTimeout(() => controller.abort(), 120000);
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {

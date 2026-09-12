@@ -33,10 +33,10 @@ interface Props extends FraudAlertViewProps {
 }
 
 export const FraudAlertView: React.FC<Props> = ({
-  cardInfo,
-  suspiciousTransaction,
-  recentTransactions,
-  plasticEnabled,
+  cardInfo = { id: 'card_1', lastFour: '1234', type: 'Credit', isFrozen: false },
+  suspiciousTransaction = { id: 'tx_0', merchant: 'Unknown', amount: 0, currency: 'MXN', date: new Date().toISOString(), location: 'Unknown', category: 'Unknown' },
+  recentTransactions = [],
+  plasticEnabled = true,
   onAction,
 }) => {
   const [isPlasticEnabled, setIsPlasticEnabled] = useState(plasticEnabled);

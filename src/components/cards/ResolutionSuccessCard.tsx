@@ -39,11 +39,11 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export const ResolutionSuccessCard: React.FC<Props> = ({
-  title,
-  description,
-  details,
-  folio,
-  type,
+  title = 'Operación Exitosa',
+  description = 'La solicitud fue procesada correctamente.',
+  details = [],
+  folio = 'Folio N/A',
+  type = 'card',
   onAction,
 }) => {
   const checkScale = useSharedValue(0);

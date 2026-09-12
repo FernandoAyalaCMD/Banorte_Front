@@ -39,12 +39,12 @@ const SLIDER_WIDTH = 280;
 const THUMB_SIZE = 28;
 
 export const PayrollAdvance: React.FC<Props> = ({
-  maxAmount,
-  minAmount,
-  defaultAmount,
-  disbursementDate,
-  installmentOptions,
-  employerName,
+  maxAmount = 5000,
+  minAmount = 500,
+  defaultAmount = 2500,
+  disbursementDate = 'Hoy',
+  installmentOptions = [],
+  employerName = 'Empresa SA de CV',
   onAction,
 }) => {
   const [amount, setAmount] = useState(defaultAmount);

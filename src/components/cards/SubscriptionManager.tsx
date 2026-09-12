@@ -52,8 +52,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const SubscriptionManager: React.FC<Props> = ({
-  subscriptions,
-  totalMonthlySpend,
+  subscriptions = [],
+  totalMonthlySpend = 0,
   onAction,
 }) => {
   const [activeSubscriptions, setActiveSubscriptions] = useState<Record<string, boolean>>(

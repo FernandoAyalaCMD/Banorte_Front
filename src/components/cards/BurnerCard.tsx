@@ -87,7 +87,7 @@ export const BurnerCard: React.FC<Props> = ({
     });
   }, [onAction, spendingLimit]);
 
-  const formatCardNumber = (num: string) => {
+  const formatCardNumber = (num?: string) => { if(!num) return "•••• •••• •••• ••••";
     return num.replace(/(.{4})/g, '$1 ').trim();
   };
 
@@ -189,7 +189,7 @@ export const BurnerCard: React.FC<Props> = ({
       >
         <Text style={styles.limitLabel}>Límite de gasto</Text>
         <Text style={styles.limitAmount}>
-          ${spendingLimit.toLocaleString('es-MX')} MXN
+          ${(spendingLimit || 0).toLocaleString('es-MX')} MXN
         </Text>
       </Animated.View>
 

@@ -12,6 +12,7 @@ import { FraudAlertView } from './cards/FraudAlertView';
 import { SubscriptionManager } from './cards/SubscriptionManager';
 import { PayrollAdvance } from './cards/PayrollAdvance';
 import { ResolutionSuccessCard } from './cards/ResolutionSuccessCard';
+import { DynamicBankView } from './cards/DynamicBankView';
 
 /**
  * Registry mapping component name strings to React components.
@@ -26,6 +27,7 @@ export const COMPONENT_REGISTRY: Record<
   SubscriptionManager,
   PayrollAdvance,
   ResolutionSuccessCard,
+  DynamicBankView,
 };
 
 /**

@@ -11,7 +11,8 @@ export type ComponentName =
   | 'FraudAlertView'
   | 'SubscriptionManager'
   | 'PayrollAdvance'
-  | 'ResolutionSuccessCard';
+  | 'ResolutionSuccessCard'
+  | 'DynamicBankView';
 
 // ─── A2UI Payload (LLM → Frontend) ─────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ export interface ComponentPropsMap {
   SubscriptionManager: SubscriptionManagerProps;
   PayrollAdvance: PayrollAdvanceProps;
   ResolutionSuccessCard: ResolutionSuccessCardProps;
+  DynamicBankView: DynamicBankViewProps;
 }
 
 // ─── BurnerCard Props (SafeCart) ────────────────────────────────────────────────
@@ -202,4 +204,22 @@ export interface ResolutionSuccessCardProps {
   folio?: string;
   /** Type of resolution for icon selection */
   type: 'payment' | 'card' | 'subscription' | 'dispute' | 'advance';
+}
+
+
+// --- DynamicBankView Props (Generative UI) ---
+
+export interface DynamicElement {
+  type: 'header' | 'text' | 'key_value' | 'bar_chart' | 'action_button';
+  content?: string;
+  label?: string;
+  value?: string | number;
+  data?: Array<{ label: string; value: number }>;
+  action?: string;
+}
+
+export interface DynamicBankViewProps {
+  title: string;
+  subtitle?: string;
+  elements: DynamicElement[];
 }
