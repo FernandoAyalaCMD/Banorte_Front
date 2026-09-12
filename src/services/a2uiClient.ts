@@ -54,13 +54,16 @@ interface BackendChatResponse {
 /** Helper to make POST requests with timeout */
 async function post<T>(endpoint: string, body: Record<string, unknown>): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  // 45s timeout for Gemini LLM + MCP tools + ElevenLabs TTS
+  const timeout = setTimeout(() => controller.abort(), 45000);
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        'User-Agent': 'BanorteA2UI/1.0',
       },
       body: JSON.stringify(body),
       signal: controller.signal,
@@ -91,7 +94,11 @@ function normalizeResponse(res: BackendChatResponse): A2UIResponse {
 
   const componentName = (rawA2ui.component || rawA2ui.component_name || 'ResolutionSuccessCard') as ComponentName;
   const voiceScript = rawA2ui.speechText || rawA2ui.voice_script || '';
-  const audioUrl = res.audioUrl || res.audio_url;
+  let audioUrl = res.audioUrl || res.audio_url;
+
+  if (audioUrl && audioUrl.startsWith('/')) {
+    audioUrl = `${API_BASE_URL}${audioUrl}`;
+  }
 
   const payload: A2UIPayload = {
     component: componentName,
@@ -165,8 +172,11 @@ export async function sendEvent(event: A2UIEvent, userId: string = 'usr_banorte_
  */
 export async function healthCheck(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, {
+    const response = await fetch(`${API_BASE_URL}/api/health`, {
       method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
     });
     return response.ok;
   } catch {
