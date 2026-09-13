@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -56,14 +56,25 @@ export const SubscriptionManager: React.FC<Props> = ({
   totalMonthlySpend = 0,
   onAction,
 }) => {
+  const normalizedSubscriptions = subscriptions.map(s => ({
+    ...s,
+    id: s.id || (s as any).subscription_id || Math.random().toString(),
+    serviceName: s.serviceName || (s as any).merchant || 'Suscripción',
+    monthlyCost: s.monthlyCost ?? (s as any).amount ?? 0,
+    isActive: s.isActive ?? (s as any).token_status === 'active',
+    logoUrl: s.logoUrl || (s as any).logo_url,
+    nextChargeDate: s.nextChargeDate || (s as any).next_charge_date || '-',
+    category: s.category || 'other'
+  }));
+
   const [activeSubscriptions, setActiveSubscriptions] = useState<Record<string, boolean>>(
-    Object.fromEntries(subscriptions.map((s) => [s.id, s.isActive]))
+    Object.fromEntries(normalizedSubscriptions.map((s) => [s.id, s.isActive]))
   );
   const [hasChanges, setHasChanges] = useState(false);
 
   // Calculate savings
   const savings = useMemo(() => {
-    return subscriptions.reduce((total, sub) => {
+    return normalizedSubscriptions.reduce((total, sub) => {
       const wasActive = sub.isActive;
       const isNowActive = activeSubscriptions[sub.id];
       if (wasActive && !isNowActive) {
@@ -71,16 +82,16 @@ export const SubscriptionManager: React.FC<Props> = ({
       }
       return total;
     }, 0);
-  }, [subscriptions, activeSubscriptions]);
+  }, [normalizedSubscriptions, activeSubscriptions]);
 
   const currentSpend = useMemo(() => {
-    return subscriptions.reduce((total, sub) => {
+    return normalizedSubscriptions.reduce((total, sub) => {
       if (activeSubscriptions[sub.id]) {
         return total + sub.monthlyCost;
       }
       return total;
     }, 0);
-  }, [subscriptions, activeSubscriptions]);
+  }, [normalizedSubscriptions, activeSubscriptions]);
 
   // Animate savings bar
   const savingsProgress = useSharedValue(0);
@@ -112,7 +123,7 @@ export const SubscriptionManager: React.FC<Props> = ({
 
   const handleApplyChanges = useCallback(() => {
     notifySuccess();
-    const changes = subscriptions
+    const changes = normalizedSubscriptions
       .filter((sub) => sub.isActive !== activeSubscriptions[sub.id])
       .map((sub) => ({
         serviceId: sub.id,
@@ -126,7 +137,7 @@ export const SubscriptionManager: React.FC<Props> = ({
       changes,
       totalSavings: savings,
     });
-  }, [onAction, subscriptions, activeSubscriptions, savings]);
+  }, [onAction, normalizedSubscriptions, activeSubscriptions, savings]);
 
   const renderSubscription = ({ item, index }: { item: SubscriptionItem; index: number }) => (
     <Animated.View entering={FadeInRight.delay(200 + index * 100).springify()}>
@@ -135,12 +146,20 @@ export const SubscriptionManager: React.FC<Props> = ({
           <View
             style={[
               styles.logoContainer,
-              { backgroundColor: `${CATEGORY_COLORS[item.category]}15` },
+              { backgroundColor: `${CATEGORY_COLORS[item.category] || '#CCCCCC'}15` },
             ]}
           >
-            <Text style={styles.logoEmoji}>
-              {CATEGORY_ICONS[item.category] || '📦'}
-            </Text>
+            {item.logoUrl ? (
+              <Image 
+                source={{ uri: item.logoUrl.replace('logo.clearbit.com', 'icon.horse/icon') }} 
+                style={{ width: '100%', height: '100%', borderRadius: 12 }} 
+                resizeMode="cover" 
+              />
+            ) : (
+              <Text style={styles.logoEmoji}>
+                {CATEGORY_ICONS[item.category] || '📦'}
+              </Text>
+            )}
           </View>
           <View style={styles.subInfo}>
             <Text style={styles.subName}>{item.serviceName}</Text>
@@ -175,7 +194,7 @@ export const SubscriptionManager: React.FC<Props> = ({
         <Text style={styles.headerIcon}>🔪</Text>
         <Text style={styles.headerTitle}>Subscriptions Killer</Text>
         <Text style={styles.headerSubtitle}>
-          {subscriptions.length} suscripciones encontradas
+          {normalizedSubscriptions.length} suscripciones encontradas
         </Text>
       </AnimatedCard>
 
@@ -212,10 +231,10 @@ export const SubscriptionManager: React.FC<Props> = ({
 
       {/* ── Subscription List ── */}
       <AnimatedCard entrance="fadeDown" delay={200} variant="outlined" style={styles.listCard}>
-        {subscriptions.map((item, index) => (
+        {normalizedSubscriptions.map((item, index) => (
           <React.Fragment key={item.id}>
             {renderSubscription({ item, index })}
-            {index < subscriptions.length - 1 && <View style={styles.separator} />}
+            {index < normalizedSubscriptions.length - 1 && <View style={styles.separator} />}
           </React.Fragment>
         ))}
       </AnimatedCard>
