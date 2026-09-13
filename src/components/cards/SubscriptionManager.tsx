@@ -156,7 +156,7 @@ export const SubscriptionManager: React.FC<Props> = ({
               !activeSubscriptions[item.id] && styles.subAmountInactive,
             ]}
           >
-            ${item.monthlyCost.toLocaleString('es-MX')}
+            ${(item.monthlyCost || 0).toLocaleString('es-MX')}
           </Text>
           <BanorteSwitch
             value={activeSubscriptions[item.id]}

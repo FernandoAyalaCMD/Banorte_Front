@@ -154,7 +154,7 @@ export const PayrollAdvance: React.FC<Props> = ({
       <AnimatedCard entrance="fadeDown" delay={100} variant="elevated" style={styles.sliderCard}>
         <Text style={styles.amountLabel}>Monto a solicitar</Text>
         <Text style={styles.amountValue}>
-          ${amount.toLocaleString('es-MX')}
+          ${(amount || 0).toLocaleString('es-MX')}
           <Text style={styles.amountCurrency}> MXN</Text>
         </Text>
 
@@ -172,10 +172,10 @@ export const PayrollAdvance: React.FC<Props> = ({
 
         <View style={styles.sliderLabels}>
           <Text style={styles.sliderMin}>
-            ${minAmount.toLocaleString('es-MX')}
+            ${(minAmount || 0).toLocaleString('es-MX')}
           </Text>
           <Text style={styles.sliderMax}>
-            ${maxAmount.toLocaleString('es-MX')}
+            ${(maxAmount || 0).toLocaleString('es-MX')}
           </Text>
         </View>
       </AnimatedCard>
@@ -186,7 +186,7 @@ export const PayrollAdvance: React.FC<Props> = ({
         <View style={styles.breakdownRow}>
           <Text style={styles.breakdownLabel}>💰 Monto solicitado</Text>
           <Text style={styles.breakdownValue}>
-            ${amount.toLocaleString('es-MX')}
+            ${(amount || 0).toLocaleString('es-MX')}
           </Text>
         </View>
         <View style={styles.breakdownRow}>
@@ -202,7 +202,7 @@ export const PayrollAdvance: React.FC<Props> = ({
         <View style={[styles.breakdownRow, styles.totalRow]}>
           <Text style={styles.totalLabel}>Total a pagar</Text>
           <Text style={styles.totalValue}>
-            ${(amount + scaledCommission).toLocaleString('es-MX')}
+            ${((amount || 0) + scaledCommission).toLocaleString('es-MX')}
           </Text>
         </View>
       </AnimatedCard>
@@ -255,7 +255,7 @@ export const PayrollAdvance: React.FC<Props> = ({
         style={styles.actions}
       >
         <BanorteButton
-          title={`🚀 Solicitar $${amount.toLocaleString('es-MX')}`}
+          title={`🚀 Solicitar $${(amount || 0).toLocaleString('es-MX')}`}
           onPress={handleRequestAdvance}
           variant="primary"
           size="lg"

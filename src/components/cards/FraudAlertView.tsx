@@ -173,7 +173,7 @@ export const FraudAlertView: React.FC<Props> = ({
             <View style={styles.suspiciousRow}>
               <Text style={styles.detailLabel}>Monto</Text>
               <Text style={styles.detailAmount}>
-                ${suspiciousTransaction.amount.toLocaleString('es-MX')} {suspiciousTransaction.currency}
+                ${(suspiciousTransaction.amount || 0).toLocaleString('es-MX')} {suspiciousTransaction.currency}
               </Text>
             </View>
             <View style={styles.suspiciousRow}>
@@ -250,7 +250,7 @@ export const FraudAlertView: React.FC<Props> = ({
                   selectedCharges.includes(tx.id) && styles.txAmountSelected,
                 ]}
               >
-                -${tx.amount.toLocaleString('es-MX')}
+                -${(tx.amount || 0).toLocaleString('es-MX')}
               </Text>
             </Pressable>
           </Animated.View>
