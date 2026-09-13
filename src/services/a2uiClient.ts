@@ -106,6 +106,7 @@ function normalizeResponse(res: BackendChatResponse): A2UIResponse {
     actionId: res.conversationId || res.conversation_id || `act-${Date.now()}`,
     voice_script: voiceScript,
     audio_url: audioUrl,
+    availableActions: rawA2ui.availableActions || rawA2ui.available_actions || [],
   };
 
   return {

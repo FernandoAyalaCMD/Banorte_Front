@@ -61,9 +61,16 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { messages, isLoading, sendMessage, handleAction } = useA2UI();
+  const { messages, isLoading, sendMessage, handleAction, initializeSession } = useA2UI();
   const audioPlayer = useAudioPlayer();
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Auto-initialize Maya greeting and dashboard when opened
+  useEffect(() => {
+    if (isMayaOpen && messages.length === 0) {
+      initializeSession();
+    }
+  }, [isMayaOpen, messages.length, initializeSession]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -197,38 +204,6 @@ export default function App() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              {/* Welcome message */}
-              {messages.length === 0 && (
-                <Animated.View
-                  entering={FadeInDown.delay(300).springify()}
-                  style={styles.welcomeContainer}
-                >
-                  <Text style={styles.welcomeEmoji}>🏦</Text>
-                  <Text style={styles.welcomeTitle}>
-                    Hola, soy tu asistente Banorte
-                  </Text>
-                  <Text style={styles.welcomeSubtitle}>
-                    Cuéntame qué necesitas y generaré la interfaz perfecta para ti.
-                  </Text>
-                  <View style={styles.suggestionsContainer}>
-                    <Text style={styles.suggestionsTitle}>Prueba decir:</Text>
-                    {SUGGESTIONS.map((suggestion, index) => (
-                      <Animated.View
-                        key={index}
-                        entering={FadeInDown.delay(500 + index * 100).springify()}
-                      >
-                        <SuggestionChip
-                          text={suggestion.text}
-                          emoji={suggestion.emoji}
-                          onPress={() => handleSend(suggestion.text)}
-                        />
-                      </Animated.View>
-                    ))}
-                  </View>
-                </Animated.View>
-              )}
-
-              {/* Message list */}
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}
