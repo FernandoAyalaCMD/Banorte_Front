@@ -65,8 +65,8 @@ export const DynamicBankView: React.FC<Props> = ({
           </View>
         );
       case 'bar_chart':
-        if (!el.data || el.data.length === 0) return null;
-        const maxVal = Math.max(...el.data.map((d) => d.value));
+        if (!Array.isArray(el.data) || el.data.length === 0) return null;
+        const maxVal = Math.max(...el.data.map((d: any) => d.value || 0));
         return (
           <View key={index} style={styles.chartContainer}>
             {el.content && <Text style={styles.chartTitle}>{el.content}</Text>}
