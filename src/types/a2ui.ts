@@ -27,6 +27,8 @@ export interface A2UIPayload {
   voice_script?: string;
   /** Audio URL or base64 data URI for ElevenLabs playback */
   audio_url?: string;
+  /** Suggested quick actions from LLM */
+  availableActions?: string[];
 }
 
 // ─── A2UI Event (Frontend → LLM) ───────────────────────────────────────────────

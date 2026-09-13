@@ -41,6 +41,7 @@ export function useA2UI() {
   const handleSendMessage = useCallback(
     async (text: string) => {
       // Add user message
+      const isSilent = text === "INIT_SESSION_SILENT";
       const userMessage: ChatMessage = {
         id: generateId(),
         role: 'user',
@@ -50,7 +51,7 @@ export function useA2UI() {
 
       setState((prev) => ({
         ...prev,
-        messages: [...prev.messages, userMessage],
+        messages: isSilent ? prev.messages : [...prev.messages, userMessage],
         isLoading: true,
         error: null,
       }));
@@ -132,6 +133,12 @@ export function useA2UI() {
     ) => {
       console.log('[A2UI Event]', { actionId, eventType, eventPayload });
 
+      setState((prev) => ({
+        ...prev,
+        isLoading: true,
+        error: null,
+      }));
+
       try {
         if (IS_MOCK_MODE) {
           // In mock mode, simulate a success response for certain actions
@@ -153,7 +160,10 @@ export function useA2UI() {
             setState((prev) => ({
               ...prev,
               messages: [...prev.messages, agentMessage],
+              isLoading: false,
             }));
+          } else {
+            setState((prev) => ({ ...prev, isLoading: false }));
           }
           return;
         }
@@ -177,10 +187,14 @@ export function useA2UI() {
           setState((prev) => ({
             ...prev,
             messages: [...prev.messages, agentMessage],
+            isLoading: false,
           }));
+        } else {
+          setState((prev) => ({ ...prev, isLoading: false }));
         }
       } catch (err) {
         console.error('[A2UI Event Error]', err);
+        setState((prev) => ({ ...prev, isLoading: false, error: 'Error al procesar acción' }));
       }
     },
     [generateId]
@@ -198,6 +212,13 @@ export function useA2UI() {
     });
   }, []);
 
+  
+  const initializeSession = useCallback(async () => {
+    if (state.messages.length === 0) {
+      await handleSendMessage("INIT_SESSION_SILENT");
+    }
+  }, [state.messages.length, handleSendMessage]);
+
   return {
     messages: state.messages,
     isLoading: state.isLoading,
@@ -205,5 +226,6 @@ export function useA2UI() {
     sendMessage: handleSendMessage,
     handleAction,
     resetConversation,
+    initializeSession,
   };
 }

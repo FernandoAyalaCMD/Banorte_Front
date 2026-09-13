@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme/banorte';
 import type { ChatMessage, A2UIEventType } from '../types/a2ui';
@@ -64,6 +64,25 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             </View>
           )}
           <A2UIRenderer payload={message.a2uiPayload} onAction={onAction} />
+
+          {/* Quick action chips */}
+          {message.a2uiPayload.availableActions && message.a2uiPayload.availableActions.length > 0 && (
+            <View style={styles.actionsWrapper}>
+              <Text style={styles.actionsTitle}>Sugerencias:</Text>
+              <View style={styles.actionsList}>
+                {message.a2uiPayload.availableActions.map((action, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.actionChip}
+                    activeOpacity={0.7}
+                    onPress={() => onAction(message.a2uiPayload!.actionId, 'button_press', { action, query: action })}
+                  >
+                    <Text style={styles.actionChipText}>✨ {action}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       )}
 
@@ -146,6 +165,37 @@ const styles = StyleSheet.create({
   agentTimestamp: {
     color: Colors.gray,
     textAlign: 'left',
+  },
+  actionsWrapper: {
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.xs,
+  },
+  actionsTitle: {
+    fontSize: Typography.sizes.xs,
+    fontFamily: Typography.fontFamily.semiBold,
+    color: Colors.gray,
+    marginBottom: Spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  actionsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+  },
+  actionChip: {
+    backgroundColor: Colors.white,
+    borderColor: Colors.primary,
+    borderWidth: 1,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    ...Shadows.sm,
+  },
+  actionChipText: {
+    fontSize: Typography.sizes.sm,
+    fontFamily: Typography.fontFamily.medium,
+    color: Colors.primary,
   },
 });
 
