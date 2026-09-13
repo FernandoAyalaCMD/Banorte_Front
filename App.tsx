@@ -37,6 +37,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from './src/theme/banorte';
 import { useA2UI } from './src/hooks/useA2UI';
 import { useAudioPlayer } from './src/hooks/useAudioPlayer';
+import { useAudioRecording } from './src/hooks/useAudioRecording';
 import { MessageBubble } from './src/components/MessageBubble';
 import { ChatInput } from './src/components/ChatInput';
 import { VoiceWaveIndicator } from './src/components/VoiceWaveIndicator';
@@ -63,6 +64,7 @@ export default function App() {
 
   const { messages, isLoading, sendMessage, handleAction, initializeSession } = useA2UI();
   const audioPlayer = useAudioPlayer();
+  const { isRecording, isTranscribing, startRecording, stopRecordingAndTranscribe } = useAudioRecording();
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Auto-initialize Maya greeting and dashboard when opened
@@ -231,7 +233,15 @@ export default function App() {
             {/* ── Chat Input ── */}
             <ChatInput
               onSendMessage={handleSend}
-              isLoading={isLoading}
+              isLoading={isLoading || isTranscribing}
+              isRecording={isRecording}
+              onMicPressIn={startRecording}
+              onMicPressOut={async () => {
+                const text = await stopRecordingAndTranscribe();
+                if (text) {
+                  await handleSend(text);
+                }
+              }}
               placeholder="¿En qué te puedo ayudar?"
             />
           </KeyboardAvoidingView>

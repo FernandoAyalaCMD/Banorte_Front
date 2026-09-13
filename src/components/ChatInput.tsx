@@ -27,7 +27,8 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
-  onMicPress?: () => void;
+  onMicPressIn?: () => void;
+  onMicPressOut?: () => void;
   isLoading?: boolean;
   isRecording?: boolean;
   placeholder?: string;
@@ -35,7 +36,8 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
-  onMicPress,
+  onMicPressIn,
+  onMicPressOut,
   isLoading = false,
   isRecording = false,
   placeholder = '¿En qué te puedo ayudar?',
@@ -51,11 +53,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     onSendMessage(trimmed);
     setText('');
   }, [text, isLoading, onSendMessage]);
-
-  const handleMicPress = useCallback(() => {
-    tapLight();
-    onMicPress?.();
-  }, [onMicPress]);
 
   const sendAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: sendScale.value }],
@@ -79,11 +76,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           ]}
           onPressIn={() => {
             micScale.value = withSpring(0.9, { damping: 15, stiffness: 300 });
+            tapLight();
+            onMicPressIn?.();
           }}
           onPressOut={() => {
             micScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+            onMicPressOut?.();
           }}
-          onPress={handleMicPress}
         >
           <Text style={[styles.iconText, isRecording && styles.iconTextRecording]}>
             {isRecording ? '⏹️' : '🎤'}
