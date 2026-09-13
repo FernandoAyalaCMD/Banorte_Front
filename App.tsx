@@ -15,7 +15,9 @@ import {
   Text,
   ScrollView,
   KeyboardAvoidingView,
+  TouchableOpacity,
   Platform,
+  Image,
   ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -48,6 +50,17 @@ export default function App() {
     Inter_800ExtraBold,
   });
 
+  const [showSplash, setShowSplash] = useState(true);
+  const [isMayaOpen, setIsMayaOpen] = useState(false);
+
+  // Temporizador para ocultar el Splash después de 2.5 segundos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { messages, isLoading, sendMessage, handleAction } = useA2UI();
   const audioPlayer = useAudioPlayer();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -79,11 +92,17 @@ export default function App() {
     [sendMessage]
   );
 
-  // Loading screen while fonts load
-  if (!fontsLoaded) {
+  // Loading screen while fonts load or splash is active
+  if (!fontsLoaded || showSplash) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={styles.splashContainer}>
+        <StatusBar style="dark" />
+        <Image
+          // Asegúrate de tener tu logo en la carpeta /assets de la raíz
+          source={require('./assets/banorte-logo.png')}
+          style={styles.splashLogo}
+          resizeMode="contain"
+        />
       </View>
     );
   }
@@ -92,109 +111,168 @@ export default function App() {
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <StatusBar style="light" />
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
-        >
-          {/* ── Header ── */}
-          <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
-            style={styles.header}
-          >
-            <View style={styles.headerContent}>
-              <View style={styles.headerLeft}>
-                <View>
-                  <View style={styles.logoRow}>
-                    <Text style={styles.headerLogo}>BANORTE</Text>
-                    <View style={styles.headerBadge}>
-                      <Text style={styles.headerBadgeText}>A2UI</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.headerSubtext}>Maya · Asistente Generativo</Text>
-                </View>
-              </View>
-              <View style={styles.headerRight}>
-                <VoiceWaveIndicator
-                  isActive={audioPlayer.isPlaying}
-                  barCount={5}
-                  color={Colors.white}
+
+        {/* RENDERIZADO CONDICIONAL: INICIO VS CHAT MAYA */}
+        {!isMayaOpen ? (
+
+          /* ── PANTALLA DE INICIO (DASHBOARD) ── */
+          <View style={styles.dashboardContainer}>
+
+            {/* Encabezado Rojo (12% de la pantalla) */}
+            <View style={styles.dashboardHeader}>
+              <Image
+                source={require('./assets/banorte-logo21.png')}
+                style={styles.dashboardLogo}
+                resizeMode="contain"
+              />
+            </View>
+
+            {/* Cuerpo de la pantalla con fondo oscuro */}
+            <View style={styles.dashboardBody}>
+
+              {/* Contenedor de la imagen con difuminado */}
+              <View style={styles.imageContainer}>
+                <Image
+                  source={require('./assets/fondo.jpeg')}
+                  style={styles.illustrativeImage}
+                  resizeMode="cover"
+                />
+                {/* Gradiente para el difuminado */}
+                <LinearGradient
+                  colors={['transparent', '#2C3136']} // Transparente hacia el gris oscuro del fondo
+                  style={styles.imageGradient}
                 />
               </View>
+
+              {/* Recuadro Flotante superpuesto */}
+              <View style={styles.greetingCard}>
+                <Text style={styles.greetingTitle}>Hola, Daniel</Text>
+                <Text style={styles.greetingSubtitle}>¿Qué vamos a hacer?</Text>
+              </View>
+
             </View>
-          </LinearGradient>
 
-          {/* ── Messages Area ── */}
-          <ScrollView
-            ref={scrollViewRef}
-            style={styles.messagesContainer}
-            contentContainerStyle={styles.messagesContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
+          </View>
+
+        ) : (
+
+          /* ── CHAT DE MAYA (TU CÓDIGO ORIGINAL) ── */
+          <KeyboardAvoidingView
+            style={styles.flex}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
           >
-            {/* Welcome message */}
-            {messages.length === 0 && (
-              <Animated.View
-                entering={FadeInDown.delay(300).springify()}
-                style={styles.welcomeContainer}
-              >
-                <Text style={styles.welcomeEmoji}>🏦</Text>
-                <Text style={styles.welcomeTitle}>
-                  Hola, soy tu asistente Banorte
-                </Text>
-                <Text style={styles.welcomeSubtitle}>
-                  Cuéntame qué necesitas y generaré la interfaz perfecta para ti.
-                </Text>
-                <View style={styles.suggestionsContainer}>
-                  <Text style={styles.suggestionsTitle}>Prueba decir:</Text>
-                  {SUGGESTIONS.map((suggestion, index) => (
-                    <Animated.View
-                      key={index}
-                      entering={FadeInDown.delay(500 + index * 100).springify()}
-                    >
-                      <SuggestionChip
-                        text={suggestion.text}
-                        emoji={suggestion.emoji}
-                        onPress={() => handleSend(suggestion.text)}
-                      />
-                    </Animated.View>
-                  ))}
+            {/* ── Header ── */}
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              style={styles.header}
+            >
+              <View style={styles.headerContent}>
+                <View style={styles.headerLeft}>
+                  <View>
+                    <View style={styles.logoRow}>
+                      <Text style={styles.headerLogo}>BANORTE</Text>
+                      <View style={styles.headerBadge}>
+                        <Text style={styles.headerBadgeText}>A2UI</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.headerSubtext}>Maya · Asistente Generativo</Text>
+                  </View>
                 </View>
-              </Animated.View>
-            )}
-
-            {/* Message list */}
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                onAction={handleAction}
-              />
-            ))}
-
-            {/* Loading indicator */}
-            {isLoading && (
-              <Animated.View
-                entering={FadeIn.duration(300)}
-                style={styles.typingIndicator}
-              >
-                <View style={styles.typingDots}>
-                  <TypingDot delay={0} />
-                  <TypingDot delay={200} />
-                  <TypingDot delay={400} />
+                <View style={styles.headerRight}>
+                  <VoiceWaveIndicator
+                    isActive={audioPlayer.isPlaying}
+                    barCount={5}
+                    color={Colors.white}
+                  />
                 </View>
-                <Text style={styles.typingText}>Generando interfaz...</Text>
-              </Animated.View>
-            )}
-          </ScrollView>
+              </View>
+            </LinearGradient>
 
-          {/* ── Chat Input ── */}
-          <ChatInput
-            onSendMessage={handleSend}
-            isLoading={isLoading}
-            placeholder="¿En qué te puedo ayudar?"
-          />
-        </KeyboardAvoidingView>
+            {/* ── Messages Area ── */}
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.messagesContainer}
+              contentContainerStyle={styles.messagesContent}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Welcome message */}
+              {messages.length === 0 && (
+                <Animated.View
+                  entering={FadeInDown.delay(300).springify()}
+                  style={styles.welcomeContainer}
+                >
+                  <Text style={styles.welcomeEmoji}>🏦</Text>
+                  <Text style={styles.welcomeTitle}>
+                    Hola, soy tu asistente Banorte
+                  </Text>
+                  <Text style={styles.welcomeSubtitle}>
+                    Cuéntame qué necesitas y generaré la interfaz perfecta para ti.
+                  </Text>
+                  <View style={styles.suggestionsContainer}>
+                    <Text style={styles.suggestionsTitle}>Prueba decir:</Text>
+                    {SUGGESTIONS.map((suggestion, index) => (
+                      <Animated.View
+                        key={index}
+                        entering={FadeInDown.delay(500 + index * 100).springify()}
+                      >
+                        <SuggestionChip
+                          text={suggestion.text}
+                          emoji={suggestion.emoji}
+                          onPress={() => handleSend(suggestion.text)}
+                        />
+                      </Animated.View>
+                    ))}
+                  </View>
+                </Animated.View>
+              )}
+
+              {/* Message list */}
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  onAction={handleAction}
+                />
+              ))}
+
+              {/* Loading indicator */}
+              {isLoading && (
+                <Animated.View
+                  entering={FadeIn.duration(300)}
+                  style={styles.typingIndicator}
+                >
+                  <View style={styles.typingDots}>
+                    <TypingDot delay={0} />
+                    <TypingDot delay={200} />
+                    <TypingDot delay={400} />
+                  </View>
+                  <Text style={styles.typingText}>Generando interfaz...</Text>
+                </Animated.View>
+              )}
+            </ScrollView>
+
+            {/* ── Chat Input ── */}
+            <ChatInput
+              onSendMessage={handleSend}
+              isLoading={isLoading}
+              placeholder="¿En qué te puedo ayudar?"
+            />
+          </KeyboardAvoidingView>
+        )}
+
+        {/* ── BOTÓN FLOTANTE (MAYA) ── */}
+        <TouchableOpacity
+          onPress={() => setIsMayaOpen(!isMayaOpen)}
+          style={styles.mayaFab}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.mayaFabIcon}>
+            {isMayaOpen ? '✕' : '✨'}
+          </Text>
+        </TouchableOpacity>
+
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -251,6 +329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.background,
   },
+
   // ── Header ──
   header: {
     paddingHorizontal: Spacing.xl,
@@ -300,6 +379,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   // ── Messages ──
   messagesContainer: {
     flex: 1,
@@ -309,6 +389,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     paddingBottom: Spacing.xxxl,
   },
+
   // ── Welcome ──
   welcomeContainer: {
     alignItems: 'center',
@@ -355,6 +436,7 @@ const styles = StyleSheet.create({
     ...Shadows.sm,
     overflow: 'hidden',
   },
+
   // ── Typing Indicator ──
   typingIndicator: {
     flexDirection: 'row',
@@ -377,5 +459,123 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.sm,
     fontFamily: Typography.fontFamily.medium,
     color: Colors.gray,
+  },
+
+  // ── Splash Screen ──
+  splashContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  splashLogo: {
+    width: 250,
+    height: 100,
+  },
+
+  // ── Dashboard (Pantalla Principal) ──
+  dashboardContainer: {
+    flex: 1,
+    backgroundColor: '#2C3136', // Gris oscuro para toda la app
+  },
+  dashboardHeader: {
+    height: '12%',
+    minHeight: 80,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.xl,
+    borderBottomRightRadius: BorderRadius.xl,
+    zIndex: 10,
+  },
+  dashboardLogo: {
+    width: 230,
+    height: 40,
+    tintColor: Colors.white,
+  },
+  dashboardBody: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#2C3136', // Continuación del fondo gris oscuro
+  },
+  imageContainer: {
+    width: '100%',
+    height: 250,
+    marginTop: -25, // Mete la imagen por debajo del rojo
+    zIndex: 1,
+  },
+  illustrativeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 90, // La altura del difuminado
+  },
+
+  // ── Recuadro de Saludo ──
+  greetingCard: {
+    backgroundColor: '#9DA3A8', // Gris claro similar al de la imagen
+    width: '90%',
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    marginTop: 10, // Lo subimos para que quede montado sobre la imagen y el difuminado
+    zIndex: 2,
+    ...Shadows.md,
+  },
+  greetingTitle: {
+    fontSize: Typography.sizes.xxl,
+    fontFamily: Typography.fontFamily.semiBold,
+    color: '#2A3035', // Texto oscuro
+    marginBottom: Spacing.xs,
+  },
+  greetingSubtitle: {
+    fontSize: Typography.sizes.md,
+    fontFamily: Typography.fontFamily.medium,
+    color: '#3B4146', // Texto ligeramente más claro
+  },
+  dashboardContent: {
+    width: '100%',
+    padding: Spacing.lg,
+    alignItems: 'center', // Centra los textos debajo de la imagen
+  },
+  dashboardTitle: {
+    fontSize: Typography.sizes.xl,
+    fontFamily: Typography.fontFamily.bold,
+    color: Colors.black,
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.md,
+  },
+  dashboardSubtitle: {
+    fontSize: Typography.sizes.md,
+    fontFamily: Typography.fontFamily.regular,
+    color: Colors.gray,
+    textAlign: 'center',
+  },
+
+  // ── Botón Flotante (Maya) ──
+  mayaFab: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 40 : 30,
+    right: 20,
+    backgroundColor: Colors.primary,
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.md,
+    elevation: 6,
+    zIndex: 999,
+  },
+  mayaFabIcon: {
+    fontSize: 28,
+    color: Colors.white,
   },
 });
